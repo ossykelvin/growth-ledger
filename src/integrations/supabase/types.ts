@@ -14,16 +14,244 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tbl_invoices: {
+        Row: {
+          amount: number
+          client: string
+          created_at: string
+          due_date: string
+          id: string
+          invoice_number: string
+          issue_date: string
+          items: Json
+          notes: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          client: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          items?: Json
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          client?: string
+          created_at?: string
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          items?: Json
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tbl_paye_employees: {
+        Row: {
+          created_at: string
+          gross_pay: number
+          id: string
+          name: string
+          net_pay: number
+          ni: number
+          role: string
+          tax: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gross_pay?: number
+          id?: string
+          name: string
+          net_pay?: number
+          ni?: number
+          role?: string
+          tax?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gross_pay?: number
+          id?: string
+          name?: string
+          net_pay?: number
+          ni?: number
+          role?: string
+          tax?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tbl_profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tbl_transactions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description: string
+          id?: string
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tbl_user_roles: {
+        Row: {
+          access: Database["public"]["Enums"]["access_level"]
+          id: string
+          module: Database["public"]["Enums"]["app_module"]
+          user_id: string
+        }
+        Insert: {
+          access?: Database["public"]["Enums"]["access_level"]
+          id?: string
+          module: Database["public"]["Enums"]["app_module"]
+          user_id: string
+        }
+        Update: {
+          access?: Database["public"]["Enums"]["access_level"]
+          id?: string
+          module?: Database["public"]["Enums"]["app_module"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tbl_vat_returns: {
+        Row: {
+          created_at: string
+          deadline: string | null
+          id: string
+          input_vat: number
+          net_vat: number
+          output_vat: number
+          quarter: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          input_vat?: number
+          net_vat?: number
+          output_vat?: number
+          quarter: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          input_vat?: number
+          net_vat?: number
+          output_vat?: number
+          quarter?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_module_access: {
+        Args: {
+          _min_access: Database["public"]["Enums"]["access_level"]
+          _module: Database["public"]["Enums"]["app_module"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_user_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      access_level: "none" | "view" | "edit" | "admin"
+      app_module:
+        | "invoices"
+        | "transactions"
+        | "pnl"
+        | "vat"
+        | "paye"
+        | "reports"
+        | "users"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +378,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      access_level: ["none", "view", "edit", "admin"],
+      app_module: [
+        "invoices",
+        "transactions",
+        "pnl",
+        "vat",
+        "paye",
+        "reports",
+        "users",
+      ],
+    },
   },
 } as const
