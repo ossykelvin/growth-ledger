@@ -95,7 +95,7 @@ export default function UserManagement() {
       .from("tbl_user_roles")
       .update({ access: access as any })
       .eq("user_id", userId)
-      .eq("module", module);
+      .eq("module", module as any);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
