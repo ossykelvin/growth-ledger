@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import ApproverSelect from "@/components/ApproverSelect";
+import AttachmentUpload from "@/components/AttachmentUpload";
 
 const categories = ["Revenue", "Rent", "Software", "Contractors", "Marketing", "Insurance", "Payroll", "Utilities", "Other"];
 
@@ -22,6 +23,7 @@ export default function AddTransactionDialog({ onCreated }: { onCreated?: () => 
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [approver1, setApprover1] = useState("");
   const [approver2, setApprover2] = useState("");
+  const [attachments, setAttachments] = useState<any[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -47,6 +49,7 @@ export default function AddTransactionDialog({ onCreated }: { onCreated?: () => 
         approver1_status: "pending",
         approver2_status: "pending",
         created_by_name: user.user_metadata?.full_name || user.email || "",
+        attachments: attachments,
       } as any);
       if (error) throw error;
 
@@ -74,6 +77,7 @@ export default function AddTransactionDialog({ onCreated }: { onCreated?: () => 
     setDate(new Date().toISOString().split("T")[0]);
     setApprover1("");
     setApprover2("");
+    setAttachments([]);
   };
 
   return (
@@ -123,6 +127,8 @@ export default function AddTransactionDialog({ onCreated }: { onCreated?: () => 
           </div>
 
           <ApproverSelect approver1={approver1} approver2={approver2} onApprover1Change={setApprover1} onApprover2Change={setApprover2} />
+
+          <AttachmentUpload attachments={attachments} onAttachmentsChange={setAttachments} />
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Adding..." : "Submit for Approval"}
