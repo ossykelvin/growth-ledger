@@ -77,6 +77,7 @@ export default function AddTransactionDialog({ onCreated }: { onCreated?: () => 
     setDate(new Date().toISOString().split("T")[0]);
     setApprover1("");
     setApprover2("");
+    setAttachments([]);
   };
 
   return (
