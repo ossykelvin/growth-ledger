@@ -214,6 +214,11 @@ export default function UserManagement() {
                       <p className="text-sm font-medium text-foreground">{u.full_name || "—"}</p>
                       <p className="text-xs text-muted-foreground">{u.email}</p>
                     </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                      {u.last_login_at
+                        ? new Date(u.last_login_at).toLocaleString()
+                        : <span className="italic text-muted-foreground/60">Never</span>}
+                    </td>
                     {modules.map((mod) => (
                       <td key={mod} className="px-3 py-3 text-center">
                         <Select value={u.roles[mod] || "none"} onValueChange={(v) => updateRole(u.user_id, mod, v)}>
