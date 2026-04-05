@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Shield, UserPlus, Trash2 } from "lucide-react";
+import { Plus, Shield, UserPlus, Trash2, Clock } from "lucide-react";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { motion } from "framer-motion";
 
 const modules = ["invoices", "transactions", "pnl", "vat", "paye", "reports", "users"] as const;
 const accessLevels = ["none", "view", "edit", "admin"] as const;
+const timeoutOptions = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
 
 interface UserProfile {
   user_id: string;
@@ -22,6 +23,7 @@ interface UserProfile {
   is_active: boolean;
   last_login_at: string | null;
   roles: Record<string, string>;
+  session_timeout_minutes: number;
 }
 
 export default function UserManagement() {
@@ -60,7 +62,7 @@ export default function UserManagement() {
         const userRoles = (roles || []).filter((r: any) => r.user_id === p.user_id);
         const roleMap: Record<string, string> = {};
         userRoles.forEach((r: any) => { roleMap[r.module] = r.access; });
-        return { user_id: p.user_id, full_name: p.full_name, email: p.email, is_active: p.is_active, last_login_at: (p as any).last_login_at || null, roles: roleMap };
+        return { user_id: p.user_id, full_name: p.full_name, email: p.email, is_active: p.is_active, last_login_at: (p as any).last_login_at || null, roles: roleMap, session_timeout_minutes: (p as any).session_timeout_minutes ?? 15 };
       });
       setUsers(mapped);
     }
@@ -77,7 +79,7 @@ export default function UserManagement() {
       const { data, error } = await supabase.auth.signUp({
         email: newEmail,
         password: newPassword,
-        options: { data: { full_name: newName } },
+        options: { data: { full_name: newName }, emailRedirectTo: "https://ledgerflow.koptechnology.co.uk" },
       });
       if (error) throw error;
 
@@ -116,6 +118,19 @@ export default function UserManagement() {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Updated", description: `Permission updated for ${module}` });
+      fetchUsers();
+    }
+  };
+
+  const updateTimeout = async (userId: string, minutes: number) => {
+    const { error } = await supabase
+      .from("tbl_profiles")
+      .update({ session_timeout_minutes: minutes } as any)
+      .eq("user_id", userId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Updated", description: `Session timeout set to ${minutes} min` });
       fetchUsers();
     }
   };
@@ -198,6 +213,7 @@ export default function UserManagement() {
                       {m === "pnl" ? "P&L" : m}
                     </th>
                   ))}
+                  <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Timeout</th>
                   {hasAdmin("users") && <th className="px-3 py-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>}
                 </tr>
               </thead>
@@ -219,6 +235,7 @@ export default function UserManagement() {
                         ? new Date(u.last_login_at).toLocaleString()
                         : <span className="italic text-muted-foreground/60">Never</span>}
                     </td>
+                    
                     {modules.map((mod) => (
                       <td key={mod} className="px-3 py-3 text-center">
                         <Select value={u.roles[mod] || "none"} onValueChange={(v) => updateRole(u.user_id, mod, v)}>
@@ -231,6 +248,16 @@ export default function UserManagement() {
                         </Select>
                       </td>
                     ))}
+                    <td className="px-3 py-3 text-center">
+                      <Select value={String(u.session_timeout_minutes)} onValueChange={(v) => updateTimeout(u.user_id, Number(v))}>
+                        <SelectTrigger className="w-24 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeoutOptions.map((m) => <SelectItem key={m} value={String(m)}>{m} min</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </td>
                     {hasAdmin("users") && (
                       <td className="px-3 py-3 text-center">
                         {u.user_id !== user?.id ? (
