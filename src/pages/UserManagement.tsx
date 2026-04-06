@@ -138,6 +138,22 @@ export default function UserManagement() {
     }
   };
 
+  const updateApprover = async (userId: string, checked: boolean) => {
+    const { error } = await supabase
+      .from("tbl_profiles")
+      .update({ is_approver: checked } as any)
+      .eq("user_id", userId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Updated", description: `Approver status updated` });
+      fetchUsers();
+    }
+  };
+
+  const visibleUsers = users.filter((u) => !u.is_hidden);
+
+
   const accessColor = (level: string) => {
     switch (level) {
       case "admin": return "text-primary";
